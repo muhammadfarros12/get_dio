@@ -1,0 +1,33 @@
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  pull:
+    branches:
+      - main
+      - master
+name: "Build & Realease"
+jobs:
+  build:
+    name: Build & Realease
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setupjava@v1
+        with:
+          java_version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.10.0'
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk --debug --split -per-abi
+      - name: Push to Realease
+        uses: ncipollo /realease-action@v1
+        with:
+          actifacts: "build/app/outputs/apk/debug/*"
+          tag: v.1.0.${{ github.run_number }}
+          token: ${{ secrets.TOKEN }}
+
+# push to master, main
